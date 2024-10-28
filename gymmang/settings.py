@@ -27,7 +27,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["https://gym-management-system-0pox.onrender.com"]
+ALLOWED_HOSTS = ["gym-management-system-0pox.onrender.com"]
 
 AUTH_USER_MODEL = "authentication.GymAdmin"
 LOGIN_URL = "/auth/login/"
