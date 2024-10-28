@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: django-app
+    plan: free
+    region: singapore
+    dockerfilePath: Dockerfile 
+    env: docker
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 8000
