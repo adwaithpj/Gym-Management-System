@@ -1,0 +1,40 @@
+{% extends 'auth/base.html' %}
+
+
+{% block title %}
+    Complete Sign Up
+{% endblock title %}
+    
+
+
+{% block content %}
+<div class="container px-5" style='width: 400px; margin-top:100px;'>
+    <h2 class="font-semibold font-pop text-3xl text-left">Complete Signup</h2>
+    <form method="post" class="py-6" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="mb-4">
+                {{ field.label_tag }}
+                {{ field }}
+                {% for error in field.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+            
+        {% endfor %}
+        <button type="submit" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded w-full transition duration-300 ease-in-out">Login</button>
+    </form>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+{% endblock content %}
+    
+
+    
+
+

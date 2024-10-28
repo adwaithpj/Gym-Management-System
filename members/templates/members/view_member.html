@@ -1,0 +1,221 @@
+{% extends 'auth/base.html' %}
+{% load static %}
+{% block content %}
+<div class="relative overflow-x-auto shadow-md">
+  <div
+    class="flex items-center pt-10 px-5 justify-between  flex-wrap md:flex-row space-y-4 md:space-y-0 pb-4 bg-white dark:bg-gray-900">
+    <h2 class="text-white font-semibold font-pop text-3xl ">Members</h2>
+
+    
+    <div class="flex items-center justify-between space-x-2">
+      <div class="relative">
+        <div class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
+          <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+            fill="none" viewBox="0 0 20 20">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+          </svg>
+        </div>
+        <input type="text" id="table-search-users"
+          class="block p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="Search for users" />
+          
+      </div>
+      <div class="flex items-center justify-between space-x-2">
+        <a href="{% url 'members:add' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Add Member</a>
+        <a href="{% url 'home:refresh' %}" class="ring:bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Refresh</a>
+      </div>
+      
+    </div>
+    
+    
+  </div>
+  
+</div>
+<div class="relative overflow-x-auto shadow-md sm:rounded-b-lg font-pop">
+  <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+      <tr>
+        <!-- <th scope="col" class="px-1 py-1">Profile</th> -->
+        <th scope="col" class="px-6 py-3">Name</th>
+        <th scope="col" class="px-6 py-3">Renew Date</th>
+        <th scope="col" class="px-6 py-3">Subscription</th>
+        <th scope="col" class="px-6 py-3">Status</th>
+        <th scope="col" class="px-6 py-3">Created At</th>
+        <th scope="col" class="px-6 py-3">Phone</th>
+        <th scope="col" class="px-6 py-3">Email</th>
+        <th scope="col" class="px-6 py-3">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+  </table>
+</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+
+<script>
+  // Define the URL and CSRF token
+  var url = "http://127.0.0.1:8000/api/members/"
+  // const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+  // Fetch the data from the API
+  fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+
+    }
+  })
+    .then(response => response.json()) // Convert response to JSON
+    .then(data => {
+
+
+      // Find the tbody element where you want to display the data
+      const tbody = document.querySelector('table tbody');
+
+      // Clear previous content
+      tbody.innerHTML = '';
+
+      // Iterate over the data and create table rows
+      data.forEach(member => {
+        // Determine status and online/offline status
+        const status = member.is_active ? "Active" : "Expired";
+        const statusColor = member.is_active ? "bg-green-500" : "bg-red-500";
+
+        // Create a new row for each member
+        const row = document.createElement('tr');
+        row.className = 'bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600';
+
+        // Populate the row with member data
+        //<img class="w-10 h-10 align-middle rounded-full" src="http://127.0.0.1:8000/${member.user_profile_image}" alt="Rounded avatar">
+        console.log(member.user_profile_image)
+        row.innerHTML = `
+        
+        
+      <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"><a href="/members/profile/${member.id}">${member.name}</a></th>
+      <td class="px-6 py-4">${new Date(member.expiry_date).toLocaleDateString()}</td>
+      <td class="px-6 py-4">${member.sub_type_details.subs}</td>
+      
+      <td class="px-6 py-4">
+        <div class="flex items-center">
+          <div class="h-2.5 w-2.5 rounded-full ${statusColor} me-2"></div>${status}
+        </div>
+      </td>
+      <td class="px-6 py-4">${new Date(member.created_at).toLocaleDateString()}</td>
+      <td class="px-6 py-4">${member.phone_number}</td>
+      <td class="px-6 py-4">${member.email}</td>
+      <td class="flex items-center px-6 py-4">
+        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
+        <a href="#" id="remove-member" data-id="{{ member.id }}" class="font-medium text-red-600 dark:text-red-500 hover:underline ms-3">Remove</a>
+      </td>
+    `;
+
+        // Append the new row to the tbody element
+        tbody.appendChild(row);
+      });
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+
+  // Function to filter table rows based on search input
+  function filterTable() {
+    const input = document.getElementById('table-search-users');
+    const filter = input.value.toLowerCase();
+    const tbody = document.querySelector('table tbody');
+    const rows = tbody.getElementsByTagName('tr');
+
+    Array.from(rows).forEach(row => {
+      const cells = row.getElementsByTagName('td');
+      let match = false;
+
+      Array.from(cells).forEach(cell => {
+        if (cell.textContent.toLowerCase().includes(filter)) {
+          match = true;
+        }
+      });
+
+      if (match) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+  // Add event listener for real-time searching
+  document.getElementById('table-search-users').addEventListener('input', filterTable);
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Select all remove links if there are multiple members
+    const removeMemberLinks = document.querySelectorAll('#remove-member');
+
+    removeMemberLinks.forEach(function(removeMemberLink) {
+        removeMemberLink.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent default link behavior
+
+            const memberId = this.getAttribute('data-id');
+            const url = 'http://127.0.0.1:8000/api/members/';
+
+            fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken') // If you use Django's CSRF protection
+                },
+                body: JSON.stringify({ id: memberId })
+            })
+            .then(response => {
+                if (response.ok) {
+                    showToast('Member deleted successfully', 'success');
+                    // Optionally, remove the member from the DOM
+                    // Example: this.closest('.member-item').remove();
+                } else {
+                    return response.json().then(data => {
+                        showToast(data.message || 'Failed to delete member', 'error');
+                        throw new Error(data.message || 'Failed to delete member');
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred. Please try again.', 'error');
+            });
+        });
+    });
+});
+
+// Helper function to get the CSRF token (for Django)
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Helper function to show toast notifications
+function showToast(message, type) {
+    Toastify({
+        text: message,
+        duration: 3000,
+        close: true,
+        gravity: 'top', // `top` or `bottom`
+        position: 'right', // `left`, `center` or `right`
+        backgroundColor: type === 'success' ? 'green' : 'red',
+        stopOnFocus: true, // Prevents dismissing of toast on hover
+    }).showToast();
+}
+
+</script>
+{% endblock %}

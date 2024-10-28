@@ -1,0 +1,61 @@
+{% extends 'auth/base.html' %}
+
+{% load static %}
+
+
+{% block test %}
+    Test Page
+{% endblock test %}
+
+
+{% block link %}
+<link rel="stylesheet" href="{$ static 'css/test.css' %}">
+
+{% endblock link %}
+
+
+{% block content %}
+    
+<div class="container mx-auto px-3 py-4" style='font-family:Poppins'>
+    <div class="container mx-auto ">
+        <div class="grid grid-cols-3 gap-4 ">
+            <div class='col-span-2 rounded-lg bg-gray-50 '><h2 class='font-semibold text-2xl'> Hello,<br> {{ user.first_name }} {{user.last_name}} </h2></div>
+            <a class="text-white add-member-button " href="{% url 'members:add' %}"><div class='col-span-1 rounded-lg bg-indigo-500 py-2 text-center transition ease-in-out delay-150 bg-blue-500 hover:-translate-y-0 hover:scale-110 hover:bg-indigo-500 duration-300 cursor-pointer'> 
+                Add Member
+            </div></a>
+            
+        </div>
+    <div>
+        <div>
+            <canvas id="myChart"></canvas>
+          </div>
+              
+    
+</div>
+
+
+<script>
+    const ctx = document.getElementById('myChart');
+  
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        datasets: [{
+          label: '# of Votes',
+          data: [12, 19, 3, 5, 2, 3],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  </script>
+
+{% endblock content %}
+    

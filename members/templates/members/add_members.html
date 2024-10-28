@@ -1,0 +1,168 @@
+{% extends 'auth/base.html' %}
+{% load static %}
+
+
+{% block content %}
+<div class="container mx-auto p-6 pt-8 form-width"  >
+  <h1 class="text-2xl font-bold mb-3 ">Add Gym Member</h1>
+  {% comment %} {% if messages %}
+  <div class="messages py-2 px-1">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" style="background-color: green; color: white;">
+      {{ message }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %} {% endcomment %}
+  <form method="post" id='add-member-form' enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="mb-6">
+      {{ field.label_tag }}
+      {{ field }}
+      {% if form.errors or form.non_field_errors %}
+      <div class='mb-3 p-6 bg-red-100 rounded-xl'>
+        {% for field in form %}
+        {{ field.errors }}
+        {% endfor %}
+        {{ form.non_field_errors}}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+    <div>
+      <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Submit</button>
+    </div>
+  </form>
+</div>
+
+<!-- Toast Notifications -->
+<div id="toast-success" class="toast hidden">
+  <div class="flex items-center w-full  notification max-w-xs p-3 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
+    <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
+      <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
+      </svg>
+      <span class="sr-only">Check icon</span>
+    </div>
+    <div class="ms-3 text-sm font-semibold text-black">Item moved successfully.</div>
+  </div>
+</div>
+
+<div id="toast-danger" class="toast hidden ">
+  <div class="flex items-center w-full notification max-w-xs p-2 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
+    
+    <div class=" ms-3 py-2 text-sm font-semibold pr-7 text-black">Item has been deleted.</div>
+    
+  </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+  document.getElementById("add-member-form").addEventListener("submit", function (event) {
+    event.preventDefault();  // Prevent default form submission
+
+    var formData = new FormData(this);  // `this` refers to the form element
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch('/api/members/', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrftoken,
+      },
+      body: formData  // Send FormData directly for file uploads and form data
+    })  
+    .then(response => {
+      if (response.ok) {  // Check if the HTTP status is 200-299
+        return response.json();
+      } else {
+        return response.json().then(data => {
+          throw data;// Throw an error to be caught in the catch block
+        });
+      }
+    })
+    .then(data => {
+      console.log('Response data:', data);  // Log response data
+      showToast('success', 'Member added successfully!');  // Display success notification
+      document.getElementById("add-member-form").reset();  // Clear form fields
+    })
+
+    .catch(errors => {
+      console.error('Error:', errors);  // Log the error for debugging
+      console.log('this is error');
+      console.log(errors);
+      // Check if error is JSON object with specific structure
+      if (errors && typeof errors === 'object') {
+        const errorMessages = errors; // Assuming the errors object has the correct structure
+        console.log('Error messages:', errorMessages);
+        
+        // Handle the specific error message
+        if (errorMessages.email && Array.isArray(errorMessages.email) && errorMessages.email.includes('Duplicate')) {
+          showToast('danger', 'This email is already registered.');
+        } else {
+          // Loop through all error messages to display them
+          for (const field in errorMessages) {
+            if (errorMessages.hasOwnProperty(field)) {
+              const message = errorMessages[field].join(', ');
+              showToast('danger', `This ${field} is already registered.`);
+            }
+          }
+        }
+      } else {
+        showToast('danger', 'Unexpected error occurred.');
+      }
+    });
+  });
+
+  function showToast(type, message) {
+    const toast = document.getElementById(`toast-${type}`);
+    const toastMessage = toast.querySelector('.text-sm.font-semibold');
+    toastMessage.textContent = message;  // Set the message dynamically
+  
+    toast.classList.remove('hidden');
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+      toast.classList.add('hidden');
+    }, 5000);
+  }
+
+  document.querySelectorAll('[data-dismiss-target]').forEach(button => {
+    button.addEventListener('click', () => {
+      const targetId = button.getAttribute('data-dismiss-target');
+      const target = document.querySelector(targetId);
+      if (target) {
+        target.classList.remove('show');
+        target.classList.add('hidden');
+      }
+    });
+  });
+</script>
+
+
+<style>
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right:10px;
+    padding-right: 0;
+    z-index: 1000;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+  }
+  
+  .toast.show {
+    display: block;
+    opacity: 1;
+    padding-top: 20px;
+  }
+
+  .notification{
+    margin:0;
+    padding:5px 1px;
+    background-color: bisque;
+  }
+</style>
+{% endblock %}

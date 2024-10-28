@@ -1,0 +1,38 @@
+{% extends 'auth/base.html' %}
+{% block title %}
+  Sign Up
+{% endblock title %}
+  
+
+{% block content %}
+<h1 class="text-center pt-10 font-bold text-3xl ">Create a New Account</h1>
+<div class="w-full max-w-md mx-auto mt-6">
+            <!-- signup.html -->
+    <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="form-outline mb-4">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% for error in field.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                {% endfor %}
+                <button type="submit" class="bg-indigo-400 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded w-full transition duration-300 ease-in-out">Register</button>
+              </form>
+              <p class="text-center">or</p>
+    {% comment %} <div class=''>
+        <div class = 'col-md-8 mx-auto social-container my-2 order-md-1'>
+          <button class='bg-gray-400 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded w-full transition duration-300 ease-in-out'>
+            <a href="{% url 'social:begin' 'google-oauth2' %}" class='text-white'>Register with Google</a>
+        </div>
+    </div> {% endcomment %}
+    <p class="text-center">Have an account? <a href="{% url 'authentication:login' %}" class="text-blue-400">Login</a></p>
+</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+{% endblock content %}
+    
